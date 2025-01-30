@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_provider_mvvm/provider/user_login_provider.dart';
 import 'package:test_provider_mvvm/view/Users/create_account.dart';
 import 'package:test_provider_mvvm/view/widgets/custom_text_field.dart';
@@ -73,6 +74,9 @@ class LoginScreen extends ConsumerWidget {
                     ref
                         .read(userLoginViewModelProvider.notifier)
                         .login(_userName.text.trim(), _password.text.trim());
+                    SharedPreferences pref =
+                        await SharedPreferences.getInstance();
+                    pref.setString('username', _userName.text);
 
                     if (loginState.value == true) {
                       Navigator.of(context).pushReplacement(
@@ -100,7 +104,7 @@ class LoginScreen extends ConsumerWidget {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const CreateAccount()));
                 },
                 child: Text(

@@ -24,14 +24,12 @@ class _AddOrEditPersonAndDoctorDialogState
     extends State<AddOrEditPersonAndDoctorDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers for person fields
-  late TextEditingController _nameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _emailController;
-  late TextEditingController _addressController;
-
-  // Controllers for doctor fields
-  late TextEditingController _specializationController;
+  // Controllers
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _specializationController;
 
   DateTime? _selectedDate;
   String? _selectedGender;
@@ -39,8 +37,6 @@ class _AddOrEditPersonAndDoctorDialogState
   @override
   void initState() {
     super.initState();
-
-    // Initialize person fields
     _nameController =
         TextEditingController(text: widget.personModel?.personName ?? '');
     _phoneController =
@@ -51,15 +47,12 @@ class _AddOrEditPersonAndDoctorDialogState
         TextEditingController(text: widget.personModel?.address ?? '');
     _selectedDate = widget.personModel?.dateOfBirth;
     _selectedGender = widget.personModel?.gender;
-
-    // Initialize doctor fields
     _specializationController =
         TextEditingController(text: widget.doctorsDTO?.specialization ?? '');
   }
 
   @override
   void dispose() {
-    // Dispose controllers
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
@@ -68,17 +61,15 @@ class _AddOrEditPersonAndDoctorDialogState
     super.dispose();
   }
 
-  Future<void> _pickDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
+  void _pickDate() async {
+    final pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
     if (pickedDate != null) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
+      setState(() => _selectedDate = pickedDate);
     }
   }
 
@@ -86,7 +77,6 @@ class _AddOrEditPersonAndDoctorDialogState
     if (_formKey.currentState?.validate() == true &&
         _selectedDate != null &&
         _selectedGender != null) {
-      // Create person object
       final person = PersonModel(
         id: widget.personModel?.id ?? 0,
         personName: _nameController.text.trim(),
@@ -97,145 +87,121 @@ class _AddOrEditPersonAndDoctorDialogState
         address: _addressController.text.trim(),
       );
 
-      // Create doctor object only if specialization is provided
       DoctorsDTO? doctor;
       if (_specializationController.text.trim().isNotEmpty) {
         doctor = DoctorsDTO(
           id: widget.doctorsDTO?.id ?? 0,
-          personId: person.id, // Will be used after saving person
+          personId: person.id,
           specialization: _specializationController.text.trim(),
         );
       }
 
-      // Pass both models back to the parent
       widget.onSubmit(person, doctor);
       Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data saved successfully!')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.personModel == null
-          ? 'Add New Person'
-          : 'Edit Person & Doctor'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Person Fields
-              CustomTextField(
-                controller: _nameController,
-                label: 'Name',
-                icon: Icons.person,
-                validator: (value) =>
-                    value?.isEmpty == true ? 'Please enter a name' : null,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Dialog(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Add / Edit Person',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  CustomTextField(
+                      controller: _nameController,
+                      label: 'Name',
+                      icon: Icons.person),
+                  _buildDatePicker(),
+                  _buildGenderSelector(),
+                  const SizedBox(height: 10),
+                  CustomTextField(
+                      controller: _phoneController,
+                      label: 'Phone',
+                      icon: Icons.phone,
+                      keyboardType: TextInputType.phone),
+                  const SizedBox(height: 10),
+                  CustomTextField(
+                      controller: _emailController,
+                      label: 'Email',
+                      icon: Icons.email,
+                      keyboardType: TextInputType.emailAddress),
+                  const SizedBox(height: 10),
+                  CustomTextField(
+                      controller: _addressController,
+                      label: 'Address',
+                      icon: Icons.location_on),
+                  const SizedBox(height: 10),
+                  CustomTextField(
+                      controller: _specializationController,
+                      label: 'Specialization (Optional)',
+                      icon: Icons.medical_services),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancel')),
+                      ElevatedButton(
+                          onPressed: _handleSubmit, child: const Text('Save')),
+                    ],
+                  )
+                ],
               ),
-              const SizedBox(height: 10),
-              _buildDatePicker(),
-              const SizedBox(height: 10),
-              _buildGenderSelector(),
-              const SizedBox(height: 10),
-              CustomTextField(
-                controller: _phoneController,
-                label: 'Phone Number',
-                icon: Icons.phone,
-                keyboardType: TextInputType.phone,
-                validator: (value) => value?.isEmpty == true
-                    ? 'Please enter a phone number'
-                    : null,
-              ),
-              const SizedBox(height: 10),
-              CustomTextField(
-                controller: _emailController,
-                label: 'Email',
-                icon: Icons.email,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value?.isEmpty == true) return 'Please enter an email';
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value!)) {
-                    return 'Invalid email format';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-              CustomTextField(
-                controller: _addressController,
-                label: 'Address',
-                icon: Icons.location_on,
-                validator: (value) =>
-                    value?.isEmpty == true ? 'Please enter an address' : null,
-              ),
-              const Divider(),
-              // Doctor Fields
-              CustomTextField(
-                controller: _specializationController,
-                label: 'Specialization (Optional)',
-                icon: Icons.medical_services,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        ElevatedButton(
-          onPressed: _handleSubmit,
-          child: Text(widget.personModel == null ? 'Create' : 'Update'),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  // Date picker widget
   Widget _buildDatePicker() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          _selectedDate == null
-              ? 'Select Date of Birth'
-              : 'Date: ${_selectedDate!.toLocal()}'.split(' ')[1],
-        ),
+        Text(_selectedDate == null
+            ? 'Select Date of Birth'
+            : 'Date: ${_selectedDate!.toLocal()}'.split(' ')[1]),
         TextButton.icon(
           icon: const Icon(Icons.date_range),
-          onPressed: () => _pickDate(context),
+          onPressed: _pickDate,
           label: const Text('Pick Date'),
         ),
       ],
     );
   }
 
-  // Gender selector widget
   Widget _buildGenderSelector() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const Text('Gender:'),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Radio<String>(
+        Row(
+          children: [
+            Radio<String>(
                 value: 'M',
                 groupValue: _selectedGender,
-                onChanged: (value) => setState(() => _selectedGender = value),
-              ),
-              const Text('Male'),
-              Radio<String>(
+                onChanged: (value) => setState(() => _selectedGender = value)),
+            const Text('Male'),
+            Radio<String>(
                 value: 'F',
                 groupValue: _selectedGender,
-                onChanged: (value) => setState(() => _selectedGender = value),
-              ),
-              const Text('Female'),
-            ],
-          ),
+                onChanged: (value) => setState(() => _selectedGender = value)),
+            const Text('Female'),
+          ],
         ),
       ],
     );

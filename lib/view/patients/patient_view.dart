@@ -4,6 +4,7 @@ import 'package:test_provider_mvvm/model/person_model.dart';
 import 'package:test_provider_mvvm/provider/patients_provider.dart';
 import 'package:test_provider_mvvm/view/widgets/add_person.dart';
 import 'package:test_provider_mvvm/view/widgets/persin_list_tile.dart';
+import 'package:test_provider_mvvm/view/widgets/show_delete_dialog.dart';
 
 class PatientScreen extends ConsumerWidget {
   const PatientScreen({super.key});
@@ -38,10 +39,14 @@ class PatientScreen extends ConsumerWidget {
               return PersonTile(
                 key: ValueKey(patient.id),
                 person: person,
-                onDelete: () {
-                  ref
-                      .read(patientViewModelProvider.notifier)
-                      .deletePatient(patient.id);
+                onDelete: () async {
+                  bool? confirmDelete =
+                      await DialogMassage.showConfirmDeleteDialog(context);
+                  if (confirmDelete == true) {
+                    ref
+                        .read(patientViewModelProvider.notifier)
+                        .deletePatient(patient.id);
+                  }
                 },
                 onTap: () {
                   showDialog(
@@ -49,9 +54,11 @@ class PatientScreen extends ConsumerWidget {
                     builder: (context) => AddPersonDialog(
                       personModel: person,
                       onSubmit: (PersonModel person) {
-                        ref
+                         ref
                             .read(patientViewModelProvider.notifier)
                             .updatePatient(person.id, person);
+
+                       
                       },
                     ),
                   );

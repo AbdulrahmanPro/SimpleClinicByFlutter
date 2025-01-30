@@ -22,12 +22,12 @@ class SplashScreen extends StatelessWidget {
                     BorderRadius.circular(20), // تحديد قيمة زاوية الدائرة
                 image: const DecorationImage(
                   image: AssetImage(
-                      'assets/images/splash.jpeg'), // أو Image.network للرابط
+                      'assets/images/img2.webp'), // أو Image.network للرابط
                   fit: BoxFit.cover, // لضبط الصورة داخل الـ Container
                 ),
               ),
-              width: 200, // تحديد عرض الـ Container
-              height: 200, // تحديد ارتفاع الـ Container
+              width: 300, // تحديد عرض الـ Container
+              height: 300, // تحديد ارتفاع الـ Container
             ),
             const Text(
               'Smart Clinic',

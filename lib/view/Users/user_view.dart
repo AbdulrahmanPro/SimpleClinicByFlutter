@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_provider_mvvm/model/usermodel.dart';
 import 'package:test_provider_mvvm/provider/user_provider.dart';
 import 'package:test_provider_mvvm/view/Users/create_account.dart';
+import 'package:test_provider_mvvm/view/widgets/show_delete_dialog.dart';
 
 class UserView extends ConsumerWidget {
   const UserView({super.key});
@@ -22,13 +23,21 @@ class UserView extends ConsumerWidget {
               return UserTile(
                 key: Key(user.id.toString()),
                 user: user,
-                onDelete: () {
-                  ref.read(userViewModelProvider.notifier).deleteUser(user.id);
+                onDelete: () async {
+                  bool? confirmDelete =
+                      await DialogMassage.showConfirmDeleteDialog(context);
+                  if (confirmDelete == true) {
+                    ref
+                        .read(userViewModelProvider.notifier)
+                        .deleteUser(user.id);
+                  }
                 },
                 onTap: () {
                   ref
                       .read(userViewModelProvider.notifier)
                       .updateUser(user.id, user);
+                  DialogMassage.showSuccessDialog(
+                      context, 'Update user Success');
                 },
               );
             }),
@@ -60,14 +69,6 @@ class UserTile extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color.fromARGB(255, 6, 131, 159),
-                Color.fromARGB(255, 8, 153, 179)
-              ],
-              begin: Alignment.bottomLeft,
-              end: Alignment.topRight,
-            ),
             borderRadius: BorderRadius.circular(30),
           ),
           child: ListTile(
@@ -75,23 +76,24 @@ class UserTile extends StatelessWidget {
             title: Text(
               user.userName,
               style: const TextStyle(
-                color: Colors.white,
+                //   color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
             subtitle: Text(
               user.name,
               style: const TextStyle(
-                color: Color.fromARGB(255, 233, 233, 233),
+                // color: Color.fromARGB(255, 233, 233, 233),
                 fontWeight: FontWeight.bold,
               ),
             ),
             trailing: IconButton(
               icon: const Icon(
                 Icons.delete,
-                color: Colors.white,
+                // color: Colors.white,
               ),
               onPressed: (onDelete),
+              splashRadius: 46,
             ),
             onTap: onTap,
           ),
@@ -99,18 +101,18 @@ class UserTile extends StatelessWidget {
         const SizedBox(
           height: 8,
         ),
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green,
-                Colors.blueAccent,
-              ],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-            ),
-          ),
-        ),
+        // Container(
+        //   decoration: const BoxDecoration(
+        //     gradient: LinearGradient(
+        //       colors: [
+        //         Colors.green,
+        //         Colors.blueAccent,
+        //       ],
+        //       begin: Alignment.topRight,
+        //       end: Alignment.bottomLeft,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

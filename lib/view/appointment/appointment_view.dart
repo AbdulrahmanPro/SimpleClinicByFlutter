@@ -4,21 +4,120 @@ import 'package:test_provider_mvvm/model/apointment_dto.dart';
 import 'package:test_provider_mvvm/provider/appointment_provider.dart';
 import 'package:test_provider_mvvm/view/appointment/add_edit_appointment.dart';
 
-class AppointmentView extends ConsumerWidget {
+class AppointmentView extends ConsumerStatefulWidget {
   const AppointmentView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppointmentView> createState() => _AppointmentViewState();
+}
+
+class _AppointmentViewState extends ConsumerState<AppointmentView> {
+  String searchQuery = '';
+  String filterStatus = 'All';
+  String sortBy = 'Date';
+
+  @override
+  Widget build(BuildContext context) {
     final appointmentDTO = ref.watch(appointmentViewModelProvider);
+    double screenWidth = MediaQuery.of(context).size.width;
+    double padding = screenWidth * 0.05;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Appointments'),
+        toolbarHeight: 120,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: Column(
+            children: [
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value.trim().toLowerCase();
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: "Search for Appointment ... ",
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: sortBy,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'Date', child: Text('sort by Date')),
+                        DropdownMenuItem(
+                            value: 'Patient', child: Text('sort by Patient')),
+                        DropdownMenuItem(
+                            value: 'Doctor', child: Text('sort by Doctor')),
+                      ],
+                      onChanged: (value) => setState(() => sortBy = value!),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      value: filterStatus,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'All', child: Text('All')),
+                        DropdownMenuItem(value: 'New', child: Text('New')),
+                        DropdownMenuItem(
+                            value: 'Completed', child: Text('Completed')),
+                        DropdownMenuItem(
+                            value: 'Cancelled', child: Text('Cancelled')),
+                        DropdownMenuItem(
+                            value: 'Waiting', child: Text('Waiting')),
+                      ],
+                      onChanged: (value) =>
+                          setState(() => filterStatus = value!),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
       body: appointmentDTO.when(
-        data: (appointments) => ListView.builder(
-            itemCount: appointments.length,
+        data: (appointments) {
+          var filteredAppointments = filterAppointments(appointments);
+
+          if (filteredAppointments.isEmpty) {
+            return const Center(child: Text('There are no Appointment'));
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            itemCount: filteredAppointments.length,
             itemBuilder: (context, index) {
-              final appointment = appointments[index];
+              final appointment = filteredAppointments[index];
+
               return AppointmentTile(
                 key: Key(appointment.id.toString()),
                 appointments: appointment,
@@ -29,18 +128,54 @@ class AppointmentView extends ConsumerWidget {
                 },
                 onTap: () {
                   showDialog(
-                      context: context,
-                      builder: (context) => AppointmentDialog(appointment));
+                    context: context,
+                    builder: (context) => AppointmentDialog(appointment),
+                  );
                 },
               );
-            }),
+            },
+          );
+        },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text('حدث خطأ: $err')),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const AppointmentDialog(null)))),
+        onPressed: () => showDialog(
+          context: context,
+          builder: (context) => const AppointmentDialog(null),
+        ),
+        child: const Icon(Icons.add),
+      ),
     );
+  }
+
+  List<AppointmentDTO> filterAppointments(List<AppointmentDTO> appointments) {
+    var filteredAppointments = filterStatus == 'All'
+        ? appointments
+        : appointments
+            .where(
+                (appointment) => appointment.appointmentStatus == filterStatus)
+            .toList();
+
+    filteredAppointments = filteredAppointments
+        .where((appointment) =>
+            appointment.personName!.toLowerCase().contains(searchQuery) ||
+            appointment.doctorName!.toLowerCase().contains(searchQuery))
+        .toList();
+
+    filteredAppointments.sort((a, b) {
+      if (sortBy == 'Date') {
+        return DateTime.parse(b.appointmentDate)
+            .compareTo(DateTime.parse(a.appointmentDate));
+      } else if (sortBy == 'Patient') {
+        return a.personName!.compareTo(b.personName!);
+      } else if (sortBy == 'Doctor') {
+        return a.doctorName!.compareTo(b.doctorName!);
+      }
+      return 0;
+    });
+
+    return filteredAppointments;
   }
 }
 
@@ -58,62 +193,29 @@ class AppointmentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [
-                Color.fromARGB(255, 6, 131, 159),
-                Color.fromARGB(255, 8, 153, 179)
-              ],
-              begin: Alignment.bottomLeft,
-              end: Alignment.topRight,
-            ),
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: ListTile(
-            leading: const Icon(Icons.supervised_user_circle_sharp),
-            title: Text(
-              appointments.personName!,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Text(
-              appointments.appointmentDate,
-              style: const TextStyle(
-                color: Color.fromARGB(255, 233, 233, 233),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            trailing: IconButton(
-              icon: const Icon(
-                Icons.delete,
-                color: Colors.white,
-              ),
-              onPressed: (onDelete),
-            ),
-            onTap: onTap,
-          ),
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(10),
+        leading: const CircleAvatar(
+          backgroundColor: Colors.green,
+          child: Icon(Icons.person, color: Colors.white),
         ),
-        const SizedBox(
-          height: 8,
+        title: Text(
+          appointments.personName!,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.green,
-                Colors.blueAccent,
-              ],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-            ),
-          ),
+        subtitle: Text(
+          '${appointments.appointmentDate} - ${appointments.doctorName}',
+          style: const TextStyle(color: Colors.grey),
         ),
-      ],
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red),
+          onPressed: onDelete,
+        ),
+        onTap: onTap,
+      ),
     );
   }
 }

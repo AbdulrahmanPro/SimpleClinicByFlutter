@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:test_provider_mvvm/model/all_doctors_info_dto.dart';
+import 'package:test_provider_mvvm/model/apointment.dart';
 import 'package:test_provider_mvvm/model/apointment_dto.dart';
 import 'package:test_provider_mvvm/data/repositories/baseurl/baseural.dart';
 import 'package:test_provider_mvvm/model/patient_all_info_dto.dart';
@@ -44,7 +45,8 @@ class AppointmentRepository {
     }
   }
 
-  Future<AppointmentDTO> createAppointment(AppointmentDTO appointment) async {
+  Future<AddorEditAppointmentDTO> createAppointment(
+      AddorEditAppointmentDTO appointment) async {
     try {
       final response = await http.post(
         Uri.parse('${Baseural.baseUrl}/AppointmentApi/Add'),
@@ -52,7 +54,7 @@ class AppointmentRepository {
         body: json.encode(appointment.toJson()),
       );
       if (response.statusCode == 201) {
-        return AppointmentDTO.fromJson(json.decode(response.body));
+        return AddorEditAppointmentDTO.fromJson(json.decode(response.body));
       } else {
         throw Exception('Failed to create appointment');
       }
@@ -61,7 +63,7 @@ class AppointmentRepository {
     }
   }
 
-  Future<void> updateAppointment(AppointmentDTO appointment) async {
+  Future<void> updateAppointment(AddorEditAppointmentDTO appointment) async {
     try {
       final response = await http.put(
         Uri.parse(

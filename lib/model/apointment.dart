@@ -1,16 +1,16 @@
-class AppointmentDTO {
+class AddorEditAppointmentDTO {
   final int id;
   final int patientId;
   final String? personName;
   final int? doctorId;
   final String? doctorName;
   final String? specialization;
-  final String appointmentDate;
-  final String appointmentStatus;
+  final DateTime appointmentDate;
+  final int? appointmentStatus;
   final int? medicalRecordId;
   final int? paymentId;
 
-  const AppointmentDTO(
+  const AddorEditAppointmentDTO(
       {required this.id,
       required this.patientId,
       this.personName,
@@ -18,20 +18,19 @@ class AppointmentDTO {
       this.doctorName,
       this.specialization,
       required this.appointmentDate,
-      required this.appointmentStatus,
+      this.appointmentStatus,
       this.medicalRecordId,
       this.paymentId});
 
-  factory AppointmentDTO.fromJson(Map<String, dynamic> json) {
-    return AppointmentDTO(
+  factory AddorEditAppointmentDTO.fromJson(Map<String, dynamic> json) {
+    return AddorEditAppointmentDTO(
       id: json['id'],
       patientId: json['patientId'],
       personName: json['personName'],
       doctorId: json['doctorId'],
       doctorName: json['doctorName'],
       specialization: json['specialization'],
-      appointmentDate: json['appointmentDate'],
-      
+      appointmentDate: DateTime.parse(json['appointmentDate']),
       appointmentStatus: json['appointmentStatus'],
       medicalRecordId: json['medicalRecordId'],
       paymentId: json['paymentId'],
@@ -46,7 +45,7 @@ class AppointmentDTO {
       'doctorId': doctorId,
       'doctorName': doctorName,
       'specialization': specialization,
-      'appointmentDate': appointmentDate,
+      'appointmentDate': appointmentDate.toIso8601String(),
       'appointmentStatus': appointmentStatus,
       'medicalRecordId': medicalRecordId,
       'paymentId': paymentId,

@@ -23,14 +23,14 @@ class PersonTile extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          gradient: const LinearGradient(
-            colors: [
-              Color.fromARGB(255, 6, 131, 159),
-              Color.fromARGB(255, 8, 153, 179)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          // gradient: const LinearGradient(
+          //   colors: [
+          //     Color.fromARGB(255, 6, 131, 159),
+          //     Color.fromARGB(255, 8, 153, 179)
+          //   ],
+          //   begin: Alignment.topLeft,
+          //   end: Alignment.bottomRight,
+          // ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -43,11 +43,11 @@ class PersonTile extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundColor: Colors.white.withOpacity(0.2),
+              // backgroundColor: Colors.white.withOpacity(0.2),
               child: Icon(
                 person.gender == 'M' ? Icons.man : Icons.woman,
                 size: 40,
-                color: Colors.white,
+                // color: Colors.white,
               ),
             ),
             const SizedBox(width: 16),
@@ -58,7 +58,7 @@ class PersonTile extends StatelessWidget {
                   Text(
                     person.personName,
                     style: const TextStyle(
-                      color: Colors.white,
+                      // color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -67,7 +67,7 @@ class PersonTile extends StatelessWidget {
                   Text(
                     person.email,
                     style: const TextStyle(
-                      color: Colors.white70,
+                      // color: Colors.white70,
                       fontSize: 14,
                     ),
                   ),
@@ -75,7 +75,9 @@ class PersonTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.white),
+              icon: const Icon(
+                Icons.delete,
+              ),
               onPressed: onDelete,
             ),
           ],
