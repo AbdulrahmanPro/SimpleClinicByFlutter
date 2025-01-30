@@ -108,4 +108,3 @@ ios
 *.log
 *.tmp
 .DS_Store
-database
