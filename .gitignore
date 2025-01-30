@@ -95,18 +95,17 @@ app.*.map.json
 build/
 
 # macOS
-macos/Flutter/ephemeral/
-macos/Pods/
-macos/Flutter/App.framework
-macos/Flutter/Flutter.framework
+macos
 
 # Linux
-linux/flutter/ephemeral/
+linux
 
 # Windows
-windows/flutter/ephemeral/
+windows
+ios
 
 # Temporary files
 *.log
 *.tmp
 .DS_Store
+database
