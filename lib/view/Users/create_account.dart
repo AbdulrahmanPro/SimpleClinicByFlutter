@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_provider_mvvm/model/person_model.dart';
 import 'package:test_provider_mvvm/model/usermodel.dart';
 import 'package:test_provider_mvvm/provider/user_provider.dart';
-import 'package:test_provider_mvvm/view/home_screen.dart';
+import 'package:test_provider_mvvm/view/Users/user_login.dart';
 import 'package:test_provider_mvvm/view/widgets/custom_text_field.dart';
 import 'package:test_provider_mvvm/provider/person_provider.dart';
 
@@ -286,15 +286,17 @@ class UserInputScreen extends ConsumerWidget {
                 CustomTextField(
                   controller: _passwordController,
                   label: 'Password',
-                  icon: Icons.email,
+                  icon: Icons.lock,
                   iconStrategy: PasswordIconStrategy(),
                   isPassword: true,
                   keyboardType: TextInputType.visiblePassword,
                   validator: (value) {
-                    if (value?.isEmpty == true) {
-                      return 'Please enter an Password';
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
                     }
-
+                    if (value.length < 8) {
+                      return 'Password must be at least 8 characters long';
+                    }
                     return null;
                   },
                 ),
@@ -302,15 +304,16 @@ class UserInputScreen extends ConsumerWidget {
                 CustomTextField(
                   controller: _confirmPasswordController,
                   label: 'Confirm Password',
-                  icon: Icons.email,
+                  icon: Icons.lock,
                   keyboardType: TextInputType.visiblePassword,
                   iconStrategy: PasswordIconStrategy(),
                   isPassword: true,
                   validator: (value) {
-                    if (value?.isEmpty == true &&
-                        _confirmPasswordController.text !=
-                            _passwordController.text) {
-                      return 'Password is not Match';
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
                     }
                     return null;
                   },
@@ -346,11 +349,9 @@ class UserInputScreen extends ConsumerWidget {
                                     password: _confirmPasswordController.text);
                                 await userProvider.createUser(userModel);
                                 Navigator.pushReplacement(
-                                    // ignore: use_build_context_synchronously
                                     context,
                                     MaterialPageRoute(
-                                        builder: (_) =>
-                                            OptionSelectionScreen()));
+                                        builder: (_) => LoginScreen()));
                               }
                             }
                           }

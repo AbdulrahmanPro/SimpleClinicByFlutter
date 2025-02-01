@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test_provider_mvvm/view/Users/user_login.dart';
 import 'package:test_provider_mvvm/view/Users/user_view.dart';
 import 'package:test_provider_mvvm/view/appointment/appointment_view.dart';
 import 'package:test_provider_mvvm/view/doctor/doctor_view.dart';
 import 'package:test_provider_mvvm/view/patients/patient_view.dart';
+import 'package:test_provider_mvvm/provider/user_login_provider.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
 
+  Future<String> _getUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username') ?? 'Guest';
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(userLoginViewModelProvider);
+
     return Drawer(
-      child: FutureBuilder<SharedPreferences>(
-        future: SharedPreferences.getInstance(),
+      child: FutureBuilder<String>(
+        future: _getUsername(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final prefs = snapshot.data!;
-          final username = prefs.getString('username') ?? 'Guest';
+          final String username = snapshot.data!;
+          final bool isAdmin = username == 'admin@gmail.com';
 
           return Column(
             children: [
@@ -45,11 +54,12 @@ class AppDrawer extends StatelessWidget {
               Expanded(
                 child: ListView(
                   children: [
-                    _buildDrawerItem(
-                      icon: Icons.people,
-                      text: 'Users',
-                      onTap: () => _navigateTo(context, const UserView()),
-                    ),
+                    if (isAdmin)
+                      _buildDrawerItem(
+                        icon: Icons.people,
+                        text: 'Users',
+                        onTap: () => _navigateTo(context, const UserView()),
+                      ),
                     _buildDrawerItem(
                       icon: Icons.local_hospital,
                       text: 'Doctors',
@@ -74,7 +84,7 @@ class AppDrawer extends StatelessWidget {
                         style: TextStyle(
                             color: Colors.red, fontWeight: FontWeight.bold),
                       ),
-                      onTap: () => _showLogoutDialog(context),
+                      onTap: () => _showLogoutDialog(context, ref),
                     ),
                   ],
                 ),
@@ -104,8 +114,8 @@ class AppDrawer extends StatelessWidget {
     Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
-  void _showLogoutDialog(BuildContext context) async {
-    final bool confirmLogout = await showDialog(
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) async {
+    final bool? confirmLogout = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Logout'),
@@ -119,6 +129,8 @@ class AppDrawer extends StatelessWidget {
             onPressed: () async {
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.remove('username');
+              ref.read(userLoginViewModelProvider.notifier).logout();
+              if (!context.mounted) return;
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -130,7 +142,5 @@ class AppDrawer extends StatelessWidget {
         ],
       ),
     );
-
-    if (confirmLogout == true) {}
   }
 }

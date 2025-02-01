@@ -265,8 +265,6 @@ class _AppointmentDialogState extends ConsumerState<AppointmentDialog> {
                               .read(appointmentViewModelProvider.notifier)
                               .createAppointemt(appointment);
                         } else {
-                          print('The value is${_selectedStatus.index + 1}');
-
                           await ref
                               .read(appointmentViewModelProvider.notifier)
                               .updateAppointemt(appointment);

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:test_provider_mvvm/model/apointment_dto.dart';
 import 'package:test_provider_mvvm/provider/appointment_provider.dart';
 import 'package:test_provider_mvvm/view/appointment/add_edit_appointment.dart';
+import 'package:test_provider_mvvm/view/widgets/show_delete_dialog.dart';
 
 class AppointmentView extends ConsumerStatefulWidget {
   const AppointmentView({super.key});
@@ -121,13 +122,17 @@ class _AppointmentViewState extends ConsumerState<AppointmentView> {
               return AppointmentTile(
                 key: Key(appointment.id.toString()),
                 appointments: appointment,
-                onDelete: () {
-                  ref
-                      .read(appointmentViewModelProvider.notifier)
-                      .deleteAppointment(appointment.id);
+                onDelete: () async {
+                  bool? confirm =
+                      await DialogMassage.showConfirmDeleteDialog(context);
+                  if (confirm == true) {
+                    ref
+                        .read(appointmentViewModelProvider.notifier)
+                        .deleteAppointment(appointment.id);
+                  }
                 },
-                onTap: () {
-                  showDialog(
+                onTap: () async {
+                  await showDialog(
                     context: context,
                     builder: (context) => AppointmentDialog(appointment),
                   );

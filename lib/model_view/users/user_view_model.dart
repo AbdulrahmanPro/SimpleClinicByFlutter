@@ -22,7 +22,7 @@ class UserViewModel extends StateNotifier<AsyncValue<List<UserModel>>> {
   Future<void> createUser(UserModel user) async {
     try {
       await repository.createUser(user);
-      await fetchUsers(); // Refresh the list
+      await fetchUsers(); 
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
     }
@@ -31,7 +31,7 @@ class UserViewModel extends StateNotifier<AsyncValue<List<UserModel>>> {
   Future<void> updateUser(int id, UserModel user) async {
     try {
       await repository.updateUser(id, user);
-      await fetchUsers(); // Refresh the list
+      await fetchUsers(); 
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
     }
@@ -40,7 +40,7 @@ class UserViewModel extends StateNotifier<AsyncValue<List<UserModel>>> {
   Future<void> deleteUser(int id) async {
     try {
       await repository.deleteUser(id);
-      await fetchUsers(); // Refresh the list
+      await fetchUsers(); 
     } catch (e, stackTrace) {
       state = AsyncValue.error(e, stackTrace);
     }

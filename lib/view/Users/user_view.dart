@@ -88,12 +88,12 @@ class UserTile extends StatelessWidget {
               ),
             ),
             trailing: IconButton(
-              icon: const Icon(
-                Icons.delete,
-                // color: Colors.white,
-              ),
+              icon: const Icon(Icons.delete, color: Colors.red
+
+                  // color: Colors.white,
+                  ),
               onPressed: (onDelete),
-              splashRadius: 46,
+              // splashRadius: 400,
             ),
             onTap: onTap,
           ),

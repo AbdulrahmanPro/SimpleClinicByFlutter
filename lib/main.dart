@@ -106,8 +106,8 @@ class AppTheme {
     // 🔹 تحسين تصميم ListTile
     listTileTheme: ListTileThemeData(
       tileColor: Colors.green.withOpacity(0.2), // 💦 تأثير الضغط
-      selectedTileColor: Color(0xFF80CBC4), // 🟢 تأثير الضغط بلون أغمق قليلاً
-      textColor: Color(0xFF212121), // ⚫ لون النص الأساسي (أسود داكن)
+      selectedTileColor: const Color(0xFF80CBC4), // 🟢 تأثير الضغط بلون أغمق قليلاً
+      textColor: const Color(0xFF212121), // ⚫ لون النص الأساسي (أسود داكن)
       iconColor: primaryColor, // 🟢 أيقونات بالأخضر الغامق
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12), // 🔲 جعل الزوايا مستديرة

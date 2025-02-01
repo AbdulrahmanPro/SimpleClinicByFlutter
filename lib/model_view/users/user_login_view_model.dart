@@ -17,4 +17,8 @@ class UserLoginViewModel extends StateNotifier<AsyncValue<bool>> {
       state = AsyncValue.error(error, StackTrace.current);
     }
   }
+
+  Future<void> logout() async {
+    state = const AsyncValue.data(false);
+  }
 }

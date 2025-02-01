@@ -5,6 +5,7 @@ import 'package:test_provider_mvvm/model/person_model.dart';
 import 'package:test_provider_mvvm/provider/doctor_provider.dart';
 import 'package:test_provider_mvvm/view/doctor/add_edit_doctor.dart';
 import 'package:test_provider_mvvm/view/widgets/persin_list_tile.dart';
+import 'package:test_provider_mvvm/view/widgets/show_delete_dialog.dart';
 
 class DoctorScreen extends ConsumerStatefulWidget {
   const DoctorScreen({super.key});
@@ -60,7 +61,7 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
             builder: (context, constraints) {
               return ListView.separated(
                 padding: EdgeInsets.symmetric(
-                  horizontal: constraints.maxWidth * 0.05,
+                  horizontal: constraints.maxWidth * 0.02,
                   vertical: 10,
                 ),
                 itemCount: filteredDoctors.length,
@@ -80,10 +81,14 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
                   return PersonTile(
                     key: ValueKey(doctor.id),
                     person: person,
-                    onDelete: () {
-                      ref
-                          .read(doctorViewModelProvider.notifier)
-                          .deleteDoctor(doctor.id);
+                    onDelete: () async {
+                      bool? confirm =
+                          await DialogMassage.showConfirmDeleteDialog(context);
+                      if (confirm == true) {
+                        ref
+                            .read(doctorViewModelProvider.notifier)
+                            .deleteDoctor(doctor.id);
+                      }
                     },
                     onTap: () {
                       showDialog(

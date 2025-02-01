@@ -31,6 +31,7 @@ class PersonTile extends StatelessWidget {
           //   begin: Alignment.topLeft,
           //   end: Alignment.bottomRight,
           // ),
+
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -67,17 +68,15 @@ class PersonTile extends StatelessWidget {
                   Text(
                     person.email,
                     style: const TextStyle(
-                      // color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                        // color: Colors.white70,
+                        fontSize: 14,
+                        color: Colors.amber),
                   ),
                 ],
               ),
             ),
             IconButton(
-              icon: const Icon(
-                Icons.delete,
-              ),
+              icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: onDelete,
             ),
           ],

@@ -15,44 +15,37 @@ class DoctorViewModel
     fetchDoctors();
   }
 
-  // إضافة شخص وطبيب في نفس الوقت
   Future<void> addDoctorWithPerson(
       PersonModel person, DoctorsDTO doctor) async {
     try {
       state = const AsyncValue.loading();
 
-      // أضف الشخص أولاً للحصول على personId
       final personId = await _personRepository.createPerson(person);
 
-      // بعد الحصول على personId، أضف الطبيب باستخدام هذا الـ id
       final doctorWithPersonId = doctor.copyWith(personId: personId);
       await _doctorRepository.addDoctor(doctorWithPersonId);
 
-      await fetchDoctors(); // تحديث البيانات بعد الإضافة
+      await fetchDoctors();
     } catch (error) {
       state = AsyncValue.error(error, StackTrace.current);
     }
   }
 
-  // تحديث الطبيب باستخدام personId
   Future<void> updateDoctor(
-    PersonModel updatedPerson, DoctorsDTO updatedDoctor) async {
+      PersonModel updatedPerson, DoctorsDTO updatedDoctor) async {
     try {
       state = const AsyncValue.loading();
 
-      // تحديث الشخص أولاً
       await _personRepository.updatePerson(updatedPerson.id, updatedPerson);
 
-      // ثم تحديث الطبيب
       await _doctorRepository.updateDoctor(updatedDoctor.id, updatedDoctor);
 
-      await fetchDoctors(); // تحديث البيانات بعد التحديث
+      await fetchDoctors();
     } catch (error) {
       state = AsyncValue.error(error, StackTrace.current);
     }
   }
 
-  // استرجاع الأطباء
   Future<void> fetchDoctors() async {
     try {
       final doctors = await _doctorRepository.fetchAllDoctors();
@@ -61,13 +54,14 @@ class DoctorViewModel
       state = AsyncValue.error(error, StackTrace.current);
     }
   }
-   Future<void> deleteDoctor(int doctorId) async {
+
+  Future<void> deleteDoctor(int doctorId) async {
     try {
       await _doctorRepository.deleteDoctor(doctorId);
       await fetchDoctors();
     } catch (error) {
-      state = AsyncValue.error('Failed to delete doctor: $error',StackTrace.current);
+      state = AsyncValue.error(
+          'Failed to delete doctor: $error', StackTrace.current);
     }
   }
-  
 }
